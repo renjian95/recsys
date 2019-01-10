@@ -183,6 +183,7 @@ class Word2Vector extends Serializable {
     while (index < corpusSize) {
       cumulative += math.pow(corpus(index).cn,power).toFloat
       cumTable(index) = math.round(cumulative / corpusWordPowSum * tableSize)
+      index += 1
     }
     if(cumTable.length>0) cumTable(cumTable.length-1) = tableSize
   }
