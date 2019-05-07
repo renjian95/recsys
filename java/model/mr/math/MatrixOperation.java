@@ -30,7 +30,7 @@ import static com.rj.recommendation.mr.utils.AbstractSupportJob.processArgs;
 /**
  * Some operation in {@Code org.apache.mahout.math.hadoop.DistributedRowMatrix} is do not work, probably caused by hadoop version.
  *
- * @Author: liuyang103
+ * @Author: renjian01
  * @Creation: 09/12/2017
  */
 public class MatrixOperation extends AbstractJob {

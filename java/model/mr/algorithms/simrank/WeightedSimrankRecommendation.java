@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>
  * <b>Notice: Phase 9 is relay on this item format.</b>
  *
- * @Author: liuyang103
+ * @Author: renjian01
  * @Creation: 07/12/2017
  */
 public class WeightedSimrankRecommendation extends AbstractSupportJob {

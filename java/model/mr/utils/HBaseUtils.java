@@ -3,7 +3,7 @@ package com.rj.recommendation.mr.utils;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * @Author: liuyang103
+ * @Author: renjian01
  * @Creation: 01/04/2018
  */
 public class HBaseUtils {

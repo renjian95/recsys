@@ -20,7 +20,7 @@ import java.util.*;
 /**
  * stage 1: join to filter user, only left item.
  *
- * @Author: liuyang103
+ * @Author: renjian01
  * @Creation: 09/12/2017
  */
 public class FinalProcessJob {

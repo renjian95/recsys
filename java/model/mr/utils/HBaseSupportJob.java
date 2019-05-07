@@ -40,7 +40,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 /**
- * @Author: liuyang103
+ * @Author: renjian01
  * @Creation: 21/01/2018
  */
 public class HBaseSupportJob {

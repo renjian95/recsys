@@ -16,7 +16,7 @@ import java.io.IOException;
  * Stage One, do id`s distinct job.
  * Stage two, index id.
  *
- * @Author: liuyang103
+ * @Author: renjian01
  * @Creation: 07/12/2017
  */
 public class IdIndexJob {

@@ -22,7 +22,7 @@ import java.io.IOException;
  * input format: userId, itemId, score, userIdLong, itemIdLong
  * i.e. 007a3d46cbe6f8868ec066f32cb1568923a9ee75	j_143_18522199851528	0.5	3222913	54563
  *
- * @Author: avaloon
+ * @Author: renjian01
  * @Creation: 07/12/2017
  */
 public class WeightedTransitionMatrixJob {

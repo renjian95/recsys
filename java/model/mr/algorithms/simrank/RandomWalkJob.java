@@ -19,7 +19,7 @@ import org.apache.mahout.math.hadoop.DistributedRowMatrix;
 import java.io.IOException;
 
 /**
- * @Author: liuyang103
+ * @Author: renjian01
  * @Creation: 08/12/2017
  */
 public class RandomWalkJob {

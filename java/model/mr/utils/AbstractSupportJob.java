@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Author: liuyang103
+ * @Author: renjian01
  * @Creation: 07/12/2017
  */
 public abstract class AbstractSupportJob extends AbstractJob implements Closeable {

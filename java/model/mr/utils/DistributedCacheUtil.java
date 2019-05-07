@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 
 /**
- * @Author: liuyang103
+ * @Author: renjian01
  * @Creation: 11/12/2017
  */
 public class DistributedCacheUtil {

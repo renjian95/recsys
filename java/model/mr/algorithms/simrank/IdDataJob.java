@@ -22,7 +22,7 @@ import java.util.List;
  * Finally output: userId, itemId, score, userIdLong, itemIdLong
  * <p>
  *
- * @Author: liuyang103
+ * @Author: renjian01
  *
  * @Creation: 07/12/2017
  */
