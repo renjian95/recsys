@@ -9,9 +9,15 @@ scala
 2. optimize部分 <br>
    a. 将优化训练模块化分成计算梯度与更新参数，实现梯度下降类，牛顿法类；
    
+3. tree部分 <br>
+   a. 梯度提升树的实现
+   
+   
 java
 
 1. 基于java实现simrank的mr分布式版本
+
+
 
 python
 
