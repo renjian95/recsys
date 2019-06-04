@@ -3,6 +3,7 @@ package com.bj58.business.recsys.model.optimize
 import com.bj58.business.recsys.model.feature.LabeledPoint
 import org.apache.spark.rdd.RDD
 import breeze.linalg.{Vector, norm}
+
 import scala.collection.mutable
 
 /**
@@ -17,7 +18,7 @@ class GradientDescent(private var gradient: Gradient,
   private var numIterations = 10
   private var stepSize = 0.1
   private var regParam = Array(0.0, 0.0)
-  private var minFraction = 0.001
+  private var minFraction = 0.000001
 
 
   /**
@@ -78,11 +79,11 @@ class GradientDescent(private var gradient: Gradient,
     this
   }
 
-  override def optimize(data: RDD[LabeledPoint], initialWeights: Vector[Double]): Vector[Double] = {
+  override def optimize(data: RDD[LabeledPoint], initialWeights: Vector[Double]): (Vector[Double], Double) = {
 
-    val weights = GradientDescent.run(data, initialWeights, gradient, updater,
+    val (weights, loss) = GradientDescent.run(data, initialWeights, gradient, updater,
       batchFraction, numIterations, stepSize, regParam, minFraction)
-    weights
+    (weights, loss)
   }
 
 }
@@ -99,13 +100,14 @@ object GradientDescent {
   def run(data: RDD[LabeledPoint], initialWeights: Vector[Double],
           gradient: Gradient, updater: Updater,
           batchFraction: Double, numIterations: Int,
-          stepSize: Double, regParam: Array[Double], minFraction: Double): Vector[Double] = {
+          stepSize: Double, regParam: Array[Double],
+          minFraction: Double): (Vector[Double], Double) = {
     //记录每轮迭代损失值
-    //val lossArr = mutable.ArrayBuilder.make[Double]
+    val lossArr = mutable.ArrayBuilder.make[Double]
     val numExamples = data.count()
     if (numExamples == 0) {
       System.out.println("未找到训练数据")
-      return initialWeights
+      return (initialWeights, -1.0)
     }
     require(numExamples * batchFraction > 1, "每轮迭代样本最少为1")
 
@@ -113,6 +115,7 @@ object GradientDescent {
     var currentWeights: Vector[Double] = null
     //参数向量
     var weights = initialWeights.copy
+    var finalLoss: Double = -1.0
     val weightSize = weights.length
     //初始化正则项
     var regularization = updater.compute(weights, Vector.zeros(weightSize), 0, 1, regParam)._2
@@ -131,9 +134,12 @@ object GradientDescent {
           combOp = (u, v) => {
             (u._1 += v._1, u._2 + v._2, u._3 + v._3)
           })
+      val lastLoss = if (lossArr.result().length > 0) lossArr.result().toSeq.reverse.head else Int.MaxValue
       val loss = cumLoss / batchSize + regularization
-      //lossArr += loss
-      val update = updater.compute(weights, cumGradient / batchSize.toDouble, stepSize, idx, regParam)
+      lossArr += loss
+      val adjust = if (loss - lastLoss < 0 && idx > 1) idx / 2 else idx
+
+      val update = updater.compute(weights, cumGradient / batchSize.toDouble, stepSize, adjust, regParam)
       weights = update._1
       regularization = update._2
       //判断迭代是否收敛
@@ -143,8 +149,11 @@ object GradientDescent {
         isConverged = Converged(lastWeights, currentWeights, minFraction)
       }
       System.out.println(s"第${idx}次迭代损失为：${loss}")
+      //System.out.println(s"第${idx}次迭代梯度为：${cumGradient / batchSize.toDouble}")
+      finalLoss = loss
+      //bcWeights.destroy()  广播变量销毁可能出错 spark bug
       idx += 1
     }
-    weights
+    (weights, finalLoss)
   }
 }

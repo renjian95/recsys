@@ -12,6 +12,6 @@ import breeze.linalg.Vector
 
 trait Optimizer extends Serializable {
 
-  def optimize(data: RDD[LabeledPoint], initialWeights: Vector[Double]): Vector[Double]
+  def optimize(data: RDD[LabeledPoint], initialWeights: Vector[Double]): (Vector[Double], Double)
 
 }

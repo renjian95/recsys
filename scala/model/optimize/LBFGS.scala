@@ -48,11 +48,11 @@ class LBFGS (private var gradient: Gradient,
 
 
 
-  override def optimize(data: RDD[LabeledPoint], initialWeights: Vector[Double]): Vector[Double] = {
+  override def optimize(data: RDD[LabeledPoint], initialWeights: Vector[Double]): (Vector[Double], Double) = {
 
-    val weights = LBFGS.run(gradient, updater, initialWeights,
+    val (weights, loss) = LBFGS.run(gradient, updater, initialWeights,
       numSearchMemory, minFraction, numIterations)
-    weights
+    (weights, loss)
   }
 }
 
@@ -133,11 +133,12 @@ object LBFGS {
 
   def run(gradient: Gradient, updater: NewtonUpdater,
           initialWeights: Vector[Double], numSearchMemory: Int,
-          minFraction: Double, numIterations: Int): Vector[Double] = {
+          minFraction: Double, numIterations: Int): (Vector[Double], Double) = {
 
     //参数向量
     var weights = initialWeights.copy
     val weightSize = weights.length
+    var finalLoss = -1.0
     //初始化状
     val (initLoss, initGrad) = updater.calLossGrad(weights)
     var state = State(weights, initLoss, initGrad, 0, initLoss, new HessianMatrix(numSearchMemory))
@@ -148,6 +149,7 @@ object LBFGS {
       //更新参数、损失、梯度
       weights = updater.compute(state)
       val (loss, grad) = updater.calLossGrad(weights)
+      finalLoss = loss
       //相对上一次迭代的改善
       val improvement = (state.loss - loss) / (state.loss.abs max loss.abs max 1E-6 * state.initLoss.abs)
       //更新黑赛矩阵近似
@@ -158,6 +160,6 @@ object LBFGS {
       idx += 1
     }
 
-    weights
+    (weights, finalLoss)
   }
 }

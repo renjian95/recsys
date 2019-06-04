@@ -2,7 +2,7 @@ package com.bj58.business.recsys.model.optimize
 
 import com.bj58.business.recsys.model.feature.LabeledPoint
 import com.bj58.business.recsys.model.util.math._
-import breeze.linalg.{Vector, axpy}
+import breeze.linalg.{Vector, SparseVector, axpy}
 import breeze.numerics._
 
 /**
@@ -61,6 +61,45 @@ class LeastSquaresGradient extends Gradient {
   }
 }
 
+
+class FMGradient(val ratio: Double) extends Gradient {
+
+  override def compute(example: LabeledPoint, weights: Vector[Double], gradient: Vector[Double]): Double = {
+    val features: SparseVector[Double] = example.features.asInstanceOf[SparseVector[Double]]
+    val label = example.label
+    val weightsArray = weights.toArray
+
+    val k = ((weights.length - 1) / features.length) - 1
+    val arr1 = (1 to k).toArray
+    val arr2 = (0 until features.index.length)
+    val linearValue = weightsArray(0) + arr2.map(i => weightsArray(features.index(i) * (k+1) + 1) * features.valueAt(i)).sum
+    val mid = arr1.map(f => arr2.map(i => weightsArray(features.index(i) * (k+1) + 1 + f) * features.valueAt(i)).sum)
+    val mid1 = mid.map(square).sum
+    val mid2 = arr2.map(i => arr1.map(f => square(weightsArray(features.index(i) * (k+1) + 1 + f))).sum * square(features.valueAt(i))).sum
+    val predict_y = linearValue + 0.5 * (mid1 - mid2)
+    //println(s"linear: ${linearValue}, mid1: ${mid1}, mid2: ${mid2},predict_y: ${predict_y}")
+    val partOfGradient = sigmoid(predict_y) - label
+    val exampleWeight = if (example.label > 0) ratio else 1.0
+
+    //计算梯度部分
+    val index: Array[Int] = Array.fill[Int](features.index.length * (k+1) + 1)(0)
+    val value: Array[Double] = Array.fill[Double](features.index.length * (k+1) + 1)(1.0)
+    for (i <- arr2) {
+      val idx = features.index(i)
+      (0 to k).foreach { f =>
+        val j = idx * (k+1) + 1 + f
+        val v = features.valueAt(i)
+        index(i * (k+1) + 1 + f) = j
+        value(i * (k+1) + 1 + f) = if (f == 0) v else v * mid(f-1) + square(v) * weightsArray(j)
+      }
+    }
+    axpy(partOfGradient * exampleWeight, (new SparseVector[Double](index, value, weightsArray.length)).asInstanceOf[Vector[Double]], gradient)
+    //返回损失
+    if (label > 0) log1pExp(-predict_y) * exampleWeight
+    else (log1pExp(-predict_y) + predict_y) * exampleWeight
+  }
+
+}
 
 /** 逻辑回归的损失函数梯度
   *  xi * (yi - sigmod(wx))
