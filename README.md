@@ -12,6 +12,9 @@ scala
 3. tree部分 <br>
    a. 梯度提升树的实现
    
+4. classfication部分 <br>
+   a. FM实现
+   
    
 java
 
